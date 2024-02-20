@@ -27,12 +27,8 @@ const ThreeScene: React.FC = () => {
     { texture: "/texture/texture2.jpg", price: "650" },
   ];
 
-  const [selectedSwatch, setSelectedSwatch] = useState<string | null>(
-    null
-  );
-  const [selectedTexture, setSelectedTexture] = useState<string | null>(
-    null
-  );
+  const [selectedSwatch, setSelectedSwatch] = useState<string | null>(null);
+  const [selectedTexture, setSelectedTexture] = useState<string | null>(null);
 
   const [totalAmount, setTotalAmount] = useState<string>("0");
 
@@ -92,11 +88,10 @@ const ThreeScene: React.FC = () => {
 
       window.addEventListener("resize", handleWindowResize);
 
-
       // light
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
       scene.add(ambientLight);
-  
+
       // Add point light to create a glowing effect
       const pointLight = new THREE.PointLight(new THREE.Color("red"), 1, 100);
       pointLight.position.set(0, 0, 0); // Adjust position as needed
@@ -106,9 +101,9 @@ const ThreeScene: React.FC = () => {
       scene.add(pointLight1);
 
       const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight.position.set(5,8, 7.5);
-scene.add(directionalLight);
-      
+      directionalLight.position.set(5, 8, 7.5);
+      scene.add(directionalLight);
+
       // Cleanup on unmount
       return () => {
         rendererRef.current?.dispose();
@@ -117,25 +112,24 @@ scene.add(directionalLight);
     }
   }, []);
 
-    
-
-
   useEffect(() => {
     if (!model) return;
 
-    const applyMaterialToModel=(materialOptions: THREE.MeshBasicMaterialParameters)=> {
+    const applyMaterialToModel = (
+      materialOptions: THREE.MeshBasicMaterialParameters
+    ) => {
       const material = new THREE.MeshBasicMaterial(materialOptions);
       model.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           child.material = material;
         }
       });
-    }
-  
-    const materialOptions : THREE.MeshBasicMaterialParameters= {
-      color: selectedSwatch || new THREE.Color(0, 0, 0)
     };
-  
+
+    const materialOptions: THREE.MeshBasicMaterialParameters = {
+      color: selectedSwatch || new THREE.Color(0, 0, 0),
+    };
+
     if (selectedTexture) {
       const textureLoader = new THREE.TextureLoader();
       textureLoader.load(selectedTexture, (texture) => {
@@ -147,7 +141,6 @@ scene.add(directionalLight);
     }
   }, [model, selectedSwatch, selectedTexture]);
 
-
   return (
     <>
       <header className="flex justify-between py-4 text-lg text-center">
@@ -158,7 +151,13 @@ scene.add(directionalLight);
               <button
                 key={swatch.color}
                 className={`m-1 rounded-full w-8 h-8 bg-${swatch.color}-500`}
-                style={{ opacity: selectedSwatch === swatch.color ? 1 : 0.5 }}
+                style={{
+                  opacity: selectedSwatch === swatch.color ? 1 : 0.5,
+                  border:
+                    selectedSwatch === swatch.color
+                      ? "2px solid black"
+                      : "none",
+                }}
                 onClick={() => {
                   setSelectedSwatch(swatch.color);
                   setTotalAmount(swatch.price);
@@ -174,15 +173,23 @@ scene.add(directionalLight);
         <div>
           <h1 className="font-bold">Your T-Shirt Texture</h1>
           <div className="flex justify-center mt-4">
-            {texture.map((swatch,index) => (
+            {texture.map((swatch, index) => (
               <button
                 key={swatch.texture}
                 className={`m-1 rounded-full w-8 h-8 bg-neutral-300`}
+                style={{
+                  border:
+                    selectedTexture === swatch.texture
+                      ? "2px solid black"
+                      : "none",
+                }}
                 onClick={() => {
                   setSelectedTexture(swatch.texture);
                   setTotalAmount(swatch.price);
                 }}
-              >T{++index}</button>
+              >
+                T{++index}
+              </button>
             ))}
           </div>
           <p className="text-center m-2 text-sm">
