@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader, OrbitControls } from "three/examples/jsm/Addons.js";
@@ -35,28 +33,27 @@ const ThreeScene: React.FC = () => {
   const [model, setModel] = useState<THREE.Object3D | null>(null);
 
   useEffect(() => {
-    console.log("useeffect");
     if (typeof window !== "undefined") {
       let requestId: number;
 
       // Scene setup
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xffffff);
+      scene.background = new THREE.Color(0xf2f0fa);
       const camera = new THREE.PerspectiveCamera(
         50,
-        window.innerWidth / window.innerHeight,
+        window.innerHeight / window.innerHeight,
         0.01,
         1000
       );
-      camera.position.z = 2.5;
+    
+      camera.position.z = 1.3;
       rendererRef.current = new THREE.WebGLRenderer();
-      rendererRef.current.setSize(window.innerWidth, window.innerHeight);
+      rendererRef.current.setSize(window.innerHeight, window.innerHeight);
       containerRef.current?.appendChild(rendererRef.current.domElement);
 
       const loader = new GLTFLoader();
-      loader.load("/model/t-shirt.glb", (gltf) => {
+      loader.load("/model/Jersey_01.glb", (gltf) => {
         const model = gltf.scene;
-        model.position.set(0, -1.2, 0);
         // Add the model to the scene
         scene.add(model);
         setModel(model);
@@ -68,6 +65,11 @@ const ThreeScene: React.FC = () => {
         rendererRef.current.domElement
       );
       controls.target = new THREE.Vector3(0, 0, 0); // Optional target for orbit
+      controls.minDistance = 0.5;
+      controls.maxDistance = 1.3;
+      controls.maxPolarAngle = Math.PI / 2;
+      controls.minPolarAngle = Math.PI / 2.6;
+      
 
       // Animate controls using requestAnimationFrame
       const animate = () => {
@@ -79,7 +81,7 @@ const ThreeScene: React.FC = () => {
       animate();
 
       const handleWindowResize = () => {
-        const width = window.innerWidth;
+        const width = window.innerHeight;
         const height = window.innerHeight;
         rendererRef.current?.setSize(width, height);
         camera.aspect = width / height;
@@ -142,63 +144,9 @@ const ThreeScene: React.FC = () => {
   }, [model, selectedSwatch, selectedTexture]);
 
   return (
-    <>
-      <header className="flex justify-between py-4 text-lg text-center">
-        <div>
-          <h1 className="font-bold">Your T-Shirt Color</h1>
-          <div className="flex justify-center mt-4">
-            {swatches.map((swatch) => (
-              <button
-                key={swatch.color}
-                className={`m-1 rounded-full w-8 h-8 bg-${swatch.color}-500`}
-                style={{
-                  opacity: selectedSwatch === swatch.color ? 1 : 0.5,
-                  border:
-                    selectedSwatch === swatch.color
-                      ? "2px solid black"
-                      : "none",
-                }}
-                onClick={() => {
-                  setSelectedSwatch(swatch.color);
-                  setTotalAmount(swatch.price);
-                }}
-              ></button>
-            ))}
-          </div>
-          <p className="text-center m-2 text-sm">
-            Click on the swatches to change the T-shirt color.
-          </p>
-        </div>
-        <div>Total Amount :- $ {totalAmount}</div>
-        <div>
-          <h1 className="font-bold">Your T-Shirt Texture</h1>
-          <div className="flex justify-center mt-4">
-            {texture.map((swatch, index) => (
-              <button
-                key={swatch.texture}
-                className={`m-1 rounded-full w-8 h-8 bg-neutral-300`}
-                style={{
-                  border:
-                    selectedTexture === swatch.texture
-                      ? "2px solid black"
-                      : "none",
-                }}
-                onClick={() => {
-                  setSelectedTexture(swatch.texture);
-                  setTotalAmount(swatch.price);
-                }}
-              >
-                T{++index}
-              </button>
-            ))}
-          </div>
-          <p className="text-center m-2 text-sm">
-            Click on the swatches to change the T-shirt Texture.
-          </p>
-        </div>
-      </header>
-      <div ref={containerRef}></div>
-    </>
+    <div className="flex justify-center">
+      <div  className="absolute" ref={containerRef}></div>
+    </div>
   );
 };
 
