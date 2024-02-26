@@ -1,34 +1,25 @@
+import { ModelSide } from "@/app/page";
 import React, { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader, OrbitControls } from "three/examples/jsm/Addons.js";
 
-const ThreeScene: React.FC = () => {
+interface ThreeSceneProps {
+  modelSide: ModelSide[]
+}
+const ThreeScene: React.FC<ThreeSceneProps> = ({modelSide}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
-  const swatches = [
-    { color: "red", tailwind: "bg-red-500", price: "350" },
-    { color: "blue", tailwind: "bg-blue-500", price: "250" },
-    { color: "green", tailwind: "bg-green-500", price: "300" },
-    { color: "yellow", tailwind: "bg-yellow-500", price: "450" },
-    { color: "orange", tailwind: "bg-orange-500", price: "650" },
-    { color: "lime", tailwind: "bg-lime-500", price: "550" },
-    { color: "teal", tailwind: "bg-teal-500", price: "300" },
-    { color: "cyan", tailwind: "bg-cyan-500", price: "320" },
-    { color: "purple", tailwind: "bg-purple-500", price: "310" },
-    { color: "gray", tailwind: "bg-gray-500", price: "290" },
-  ];
+  // const texture = [
+  //   { texture: "/texture/texture.jpg", price: "240" },
+  //   { texture: "/texture/texture1.jpg", price: "750" },
+  //   { texture: "/texture/texture2.jpg", price: "650" },
+  // ];
 
-  const texture = [
-    { texture: "/texture/texture.jpg", price: "240" },
-    { texture: "/texture/texture1.jpg", price: "750" },
-    { texture: "/texture/texture2.jpg", price: "650" },
-  ];
+  // const [selectedSwatch, setSelectedSwatch] = useState<string | null>(null);
+  // const [selectedTexture, setSelectedTexture] = useState<string | null>(null);
 
-  const [selectedSwatch, setSelectedSwatch] = useState<string | null>(null);
-  const [selectedTexture, setSelectedTexture] = useState<string | null>(null);
-
-  const [totalAmount, setTotalAmount] = useState<string>("0");
+  // const [totalAmount, setTotalAmount] = useState<string>("0");
 
   const [model, setModel] = useState<THREE.Object3D | null>(null);
 
@@ -47,7 +38,7 @@ const ThreeScene: React.FC = () => {
       );
     
       camera.position.z = 1.3;
-      rendererRef.current = new THREE.WebGLRenderer();
+      rendererRef.current = new THREE.WebGLRenderer({antialias: true});
       rendererRef.current.setSize(window.innerHeight, window.innerHeight);
       containerRef.current?.appendChild(rendererRef.current.domElement);
 
@@ -91,19 +82,16 @@ const ThreeScene: React.FC = () => {
       window.addEventListener("resize", handleWindowResize);
 
       // light
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1);
       scene.add(ambientLight);
 
       // Add point light to create a glowing effect
-      const pointLight = new THREE.PointLight(new THREE.Color("red"), 1, 100);
-      pointLight.position.set(0, 0, 0); // Adjust position as needed
+      const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+      pointLight.position.set(0, 0, 1.4); // Adjust position as needed
       scene.add(pointLight);
-      const pointLight1 = new THREE.PointLight(0xffffff, 1, 100);
-      pointLight1.position.set(0, 0, 0); // Adjust position as needed
-      scene.add(pointLight1);
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      directionalLight.position.set(5, 8, 7.5);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 10, 7.5);
       scene.add(directionalLight);
 
       // Cleanup on unmount
@@ -116,32 +104,17 @@ const ThreeScene: React.FC = () => {
 
   useEffect(() => {
     if (!model) return;
-
-    const applyMaterialToModel = (
-      materialOptions: THREE.MeshBasicMaterialParameters
-    ) => {
-      const material = new THREE.MeshBasicMaterial(materialOptions);
-      model.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.material = material;
-        }
-      });
-    };
-
-    const materialOptions: THREE.MeshBasicMaterialParameters = {
-      color: selectedSwatch || new THREE.Color(0, 0, 0),
-    };
-
-    if (selectedTexture) {
-      const textureLoader = new THREE.TextureLoader();
-      textureLoader.load(selectedTexture, (texture) => {
-        materialOptions.map = texture;
-        applyMaterialToModel(materialOptions);
-      });
-    } else {
-      applyMaterialToModel(materialOptions);
-    }
-  }, [model, selectedSwatch, selectedTexture]);
+    modelSide.map(side => {
+      if (side.value) {
+          // Get the mesh by name
+          const mesh = model.getObjectByName(side.meshName) as THREE.Mesh;
+          if (mesh) {
+              const material = new THREE.MeshStandardMaterial({ color: side.value }); 
+              mesh.material = material;
+          }
+      }
+    });
+  }, [model,modelSide]);
 
   return (
     <div className="flex justify-center">

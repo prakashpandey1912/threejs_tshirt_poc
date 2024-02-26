@@ -1,28 +1,35 @@
 import { useState } from "react";
 import Accordion from "./Accordion";
 import ColorPickerComponent from "../ColorSwatches/ColorSwarch";
+import { ModelSide } from "@/app/page";
 
 interface CustomizeSectionProps {
-  price?: number;
-  quantityDiscount?: number;
+  modelSide: ModelSide[];
+  setModelSide: (model: ModelSide[])=> void;
 }
 
-const CustomizeSection: React.FC<CustomizeSectionProps> = () => {
+const CustomizeSection: React.FC<CustomizeSectionProps> = ({modelSide,setModelSide}) => {
   const [numberValue, setNumberValue] = useState<number>(1);
+  // const [modelSide, setModelSide] = useState([
+  //   { key: "Front", name: "Front", value: "#628ec0", isOpen: false },
+  //   { key: "Back", name: "Back", value: "#684c94", isOpen: false },
+  //   { key: "Hand", name: "Hand", value: "#bc5997", isOpen: false },
+  //   { key: "Collar", name: "Collar", value: "#3b5769", isOpen: false },
+  //   { key: "Side", name: "Side", value: "#dfad07", isOpen: false },
+  // ]);
 
-  const ModelSide = [
-    { key: "Front", name: "Front", value: "", isOpen: false },
-    { key: "Back", name: "Back", value: "", isOpen: false },
-    { key: "Hand", name: "Hand", value: "", isOpen: false },
-    { key: "Collar", name: "Collar", value: "", isOpen: false },
-    { key: "Side", name: "Side", value: "", isOpen: false },
-  ];
-
-  const handleChangeValue = () => {
-    console.log("hello");
+  const handleOpenChange = (index: number) => {
+    const updatedModelSide = [...modelSide];
+    updatedModelSide[index].isOpen = !updatedModelSide[index].isOpen;
+    setModelSide(updatedModelSide);
   };
 
-  const handleChangeIsOpen = (data: boolean) => {};
+  const handleValueChange = (index: number, newValue: string) => {
+    const updatedModelSide = [...modelSide];
+    updatedModelSide[index].value = newValue;
+    setModelSide(updatedModelSide);
+  };
+
 
   return (
     <div className="flex flex-col">
@@ -55,20 +62,20 @@ const CustomizeSection: React.FC<CustomizeSectionProps> = () => {
       <Accordion title="Colors" description="Make your color combination">
         <div>
           <div className="flex flex-col">
-            {ModelSide.map((data) => (
-              <div className="flex items-center" key={data.key}>
+            {modelSide.map((data,index) => (
+              <div className="flex items-center relative" key={data.key}>
                 <button
-                  className={`m-2 rounded-full w-12 h-12 bg-yellow-500`}
+                  className={`m-2 rounded-full w-12 h-12`}
                   style={{ background: data.value }}
-                  onClick={handleChangeValue}
+                  onClick={()=>handleOpenChange(index)}
                 ></button>
                 <div className="ml-2">{data.name}</div>
                 <ColorPickerComponent
                   open={data.isOpen}
-                  onClose={() => handleChangeIsOpen(false)}
-                  onChange={() => {
-                    handleChangeValue();
-                    handleChangeIsOpen(false);
+                  onClose={() => handleOpenChange(index)}
+                  onChange={(color) => {
+                    handleValueChange(index,color);
+                    handleOpenChange(index);
                   }}
                 />
               </div>
