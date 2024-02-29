@@ -18,9 +18,18 @@ const CustomizeSection: React.FC<CustomizeSectionProps> = ({modelSide,setModelSi
   //   { key: "Side", name: "Side", value: "#dfad07", isOpen: false },
   // ]);
 
-  const handleOpenChange = (index: number) => {
-    const updatedModelSide = [...modelSide];
-    updatedModelSide[index].isOpen = !updatedModelSide[index].isOpen;
+  // const handleOpenChange = (index: number) => {
+  //   const updatedModelSide = [...modelSide];
+  //   updatedModelSide[index].isOpen = !updatedModelSide[index].isOpen;
+  //   setModelSide(updatedModelSide);
+  // };
+
+  const handleOpenChange = (index: number): void => {
+    const updatedModelSide = modelSide.map((item, i) => ({
+      ...item,
+      isOpen: i === index ? !item.isOpen : false,
+    }));
+  
     setModelSide(updatedModelSide);
   };
 
